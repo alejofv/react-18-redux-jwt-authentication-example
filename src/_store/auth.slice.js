@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 
-import { history, fetchWrapper } from '_helpers';
+import {fetchWrapper, history} from '_helpers';
 
 // create slice
 
@@ -19,9 +19,15 @@ export const authReducer = slice.reducer;
 // implementation
 
 function createInitialState() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        // TODO: Read token from cookie
+        user.token = localStorage.getItem('token');
+    }
+
     return {
         // initialize state from local storage to enable user to stay logged in
-        user: JSON.parse(localStorage.getItem('user')),
+        user: user,
         error: null
     }
 }
@@ -33,7 +39,10 @@ function createReducers() {
 
     function logout(state) {
         state.user = null;
+
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
+
         history.navigate('/login');
     }
 }
@@ -68,7 +77,15 @@ function createExtraReducers() {
                 const user = action.payload;
                 
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
-                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('user', JSON.stringify({
+                    id: user.id,
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                }));
+                // TODO: Save the token to an httpOnly cookie
+                localStorage.setItem('token', user.token);
+
                 state.user = user;
 
                 // get return url from location state or default to home page

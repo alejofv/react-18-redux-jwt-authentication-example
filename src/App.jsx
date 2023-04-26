@@ -2,8 +2,8 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 
 import { history } from '_helpers';
 import { Nav, PrivateRoute } from '_components';
-import { Home } from 'home';
-import { Login } from 'login';
+import { Home } from '_views/home';
+import { Login } from '_views/login';
 
 export { App };
 
@@ -18,16 +18,15 @@ function App() {
             <Nav />
             <div className="container pt-4 pb-4">
                 <Routes>
-                <Route
-                        path="/"
-                        element={
-                            <PrivateRoute>
-                                <Home />
-                            </PrivateRoute>
-                        }
-                    />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="*" element={<Navigate to="/" />} />
+                  <Route path="/"
+                    element={<PrivateRoute><Home /></PrivateRoute>} />
+
+                  <Route path="/login"
+                    element={<Login />} />
+
+                  <Route path="*"
+                    element={<Navigate to="/" />} />
+
                 </Routes>
             </div>
         </div>

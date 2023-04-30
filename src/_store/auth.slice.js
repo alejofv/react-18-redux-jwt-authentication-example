@@ -19,15 +19,11 @@ export const authReducer = slice.reducer;
 // implementation
 
 function createInitialState() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-        // TODO: Read token from cookie
-        user.token = localStorage.getItem('token');
-    }
+    // initialize state from local storage to enable user to stay logged in
+    const token = JSON.parse(localStorage.getItem('token'));
 
     return {
-        // initialize state from local storage to enable user to stay logged in
-        user: user,
+        token: token,
         error: null
     }
 }
@@ -38,9 +34,7 @@ function createReducers() {
     };
 
     function logout(state) {
-        state.user = null;
-
-        localStorage.removeItem('user');
+        state.token = null;
         localStorage.removeItem('token');
 
         history.navigate('/login');
@@ -48,7 +42,8 @@ function createReducers() {
 }
 
 function createExtraActions() {
-    const baseUrl = `${process.env.REACT_APP_API_URL}/users`;
+    //const baseUrl = process.env.SCHRYVER_AUTH_API_URL;
+    const baseUrl = 'http://localhost:8080';
 
     return {
         login: login()
@@ -57,7 +52,7 @@ function createExtraActions() {
     function login() {
         return createAsyncThunk(
             `${name}/login`,
-            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/authenticate`, { username, password })
+            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/v1/auth/login`, { username, password })
         );
     }
 }
@@ -74,19 +69,12 @@ function createExtraReducers() {
                 state.error = null;
             },
             [fulfilled]: (state, action) => {
-                const user = action.payload;
+                const token = action.payload;
                 
-                // store user details and jwt token in local storage to keep user logged in between page refreshes
-                localStorage.setItem('user', JSON.stringify({
-                    id: user.id,
-                    username: user.username,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                }));
-                // TODO: Save the token to an httpOnly cookie
-                localStorage.setItem('token', user.token);
+                // store jwt token in local storage to keep user logged in between page refreshes
+                localStorage.setItem('token', token);
 
-                state.user = user;
+                state.token = token;
 
                 // get return url from location state or default to home page
                 const { from } = history.location.state || { from: { pathname: '/' } };

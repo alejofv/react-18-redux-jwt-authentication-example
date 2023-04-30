@@ -11,7 +11,7 @@ function request(method) {
     return (url, body) => {
         const requestOptions = {
             method,
-            headers: authHeader(url)
+            headers: defaultHeaders()
         };
         if (body) {
             requestOptions.headers['Content-Type'] = 'application/json';
@@ -23,20 +23,21 @@ function request(method) {
 
 // helper functions
 
-function authHeader(url) {
-    // return auth header with jwt if user is logged in and request is to the api url
+function defaultHeaders() {
+    // return auth header with jwt if user is logged in
     const token = authToken();
     const isLoggedIn = !!token;
-    const isApiUrl = url.startsWith(process.env.REACT_APP_API_URL);
-    if (isLoggedIn && isApiUrl) {
-        return { Authorization: `Bearer ${token}` };
-    } else {
-        return {};
+
+    let headers = { 'x-tenantid': 'Schryver' };
+    if (isLoggedIn) {
+        headers = { ...headers, Authorization: `Bearer ${token}` };
     }
+
+    return headers;
 }
 
 function authToken() {
-    return store.getState().auth.user?.token;
+    return store.getState().auth.token?.access_token;
 }
 
 function handleResponse(response) {

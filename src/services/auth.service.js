@@ -4,7 +4,7 @@ export const authService = {
     authenticate
 };
 
-const baseAuthUrl = process.env.AUTH_API_URL;//'http://localhost:8080';
+const baseAuthUrl = process.env.REACT_APP_AUTH_API_URL;//'http://localhost:8080';
 
 function authenticate(username, password, tenant) {
     const url = `${baseAuthUrl}/v1/auth/login`;

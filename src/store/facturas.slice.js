@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { fetchWrapper } from '_helpers';
+import { facturasService } from "services";
 
 // create slice
 
-const name = 'users';
+const name = 'facturas';
 const initialState = createInitialState();
 const extraActions = createExtraActions();
 const extraReducers = createExtraReducers();
@@ -12,20 +12,18 @@ const slice = createSlice({ name, initialState, extraReducers });
 
 // exports
 
-export const userActions = { ...slice.actions, ...extraActions };
-export const usersReducer = slice.reducer;
+export const facturasActions = { ...slice.actions, ...extraActions };
+export const facturasReducer = slice.reducer;
 
 // implementation
 
 function createInitialState() {
     return {
-        users: {}
+        items: {}
     }
 }
 
 function createExtraActions() {
-    const baseUrl = `${process.env.REACT_APP_API_URL}/users`;
-
     return {
         getAll: getAll()
     };    
@@ -33,7 +31,7 @@ function createExtraActions() {
     function getAll() {
         return createAsyncThunk(
             `${name}/getAll`,
-            async () => await fetchWrapper.get(baseUrl)
+            async () => await facturasService.getAll()
         );
     }
 }
@@ -47,13 +45,13 @@ function createExtraReducers() {
         var { pending, fulfilled, rejected } = extraActions.getAll;
         return {
             [pending]: (state) => {
-                state.users = { loading: true };
+                state.items = { loading: true };
             },
             [fulfilled]: (state, action) => {
-                state.users = action.payload;
+                state.items = action.payload;
             },
             [rejected]: (state, action) => {
-                state.users = { error: action.error };
+                state.items = { error: action.error };
             }
         };
     }

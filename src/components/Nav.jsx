@@ -1,17 +1,17 @@
 import { NavLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { authActions } from '_store';
+import { authActions } from 'store';
 
 export { Nav };
 
 function Nav() {
-    const authUser = useSelector(x => x.auth.user);
+    const authToken = useSelector(x => x.auth.token);
     const dispatch = useDispatch();
     const logout = () => dispatch(authActions.logout());
 
     // only show nav when logged in
-    if (!authUser) return null;
+    if (!authToken) return null;
     
     return (
         <nav className="navbar navbar-expand navbar-dark bg-dark">

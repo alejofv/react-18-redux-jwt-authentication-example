@@ -1,6 +1,8 @@
-import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import {fetchWrapper, history} from '_helpers';
+import { history } from 'helpers';
+import { authService } from "services";
+import jwtDecode from "jwt-decode";
 
 // create slice
 
@@ -16,11 +18,31 @@ const slice = createSlice({ name, initialState, reducers, extraReducers });
 export const authActions = { ...slice.actions, ...extraActions };
 export const authReducer = slice.reducer;
 
+// selectors
+// These "custom" selectors help to reshape the state for specific usages.
+// See https://redux.js.org/usage/deriving-data-selectors#define-selectors-alongside-reducers
+export const selectJwt = state => state.auth.token.access_token;
+export const selectProfileFromJwt = state => {
+    const jwt = state.auth.token.access_token;
+    const claims = jwtDecode(jwt);
+
+    return {
+        userId: claims.cd_identityUsuario,
+        userName: claims.nb_nombreUsuario,
+    };
+}
+
 // implementation
 
 function createInitialState() {
     // initialize state from local storage to enable user to stay logged in
-    const token = JSON.parse(localStorage.getItem('token'));
+    let token = JSON.parse(localStorage.getItem('token'));
+
+    if (!(token?.access_token)) {
+        // local storage key is not valid
+        localStorage.removeItem('token');
+        token = null;
+    }
 
     return {
         token: token,
@@ -42,9 +64,6 @@ function createReducers() {
 }
 
 function createExtraActions() {
-    //const baseUrl = process.env.SCHRYVER_AUTH_API_URL;
-    const baseUrl = 'http://localhost:8080';
-
     return {
         login: login()
     };    
@@ -52,7 +71,7 @@ function createExtraActions() {
     function login() {
         return createAsyncThunk(
             `${name}/login`,
-            async ({ username, password }) => await fetchWrapper.post(`${baseUrl}/v1/auth/login`, { username, password })
+            async ({ username, password }) => await authService.authenticate(username, password)
         );
     }
 }
@@ -63,21 +82,20 @@ function createExtraReducers() {
     };
 
     function login() {
-        var { pending, fulfilled, rejected } = extraActions.login;
+        const {pending, fulfilled, rejected} = extraActions.login;
         return {
             [pending]: (state) => {
                 state.error = null;
             },
             [fulfilled]: (state, action) => {
                 const token = action.payload;
-                
-                // store jwt token in local storage to keep user logged in between page refreshes
-                localStorage.setItem('token', token);
-
                 state.token = token;
 
+                // store token object in local storage to keep user logged in between page refreshes
+                localStorage.setItem('token', JSON.stringify(token));
+
                 // get return url from location state or default to home page
-                const { from } = history.location.state || { from: { pathname: '/' } };
+                const {from} = history.location.state || {from: {pathname: '/'}};
                 history.navigate(from);
             },
             [rejected]: (state, action) => {

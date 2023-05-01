@@ -4,8 +4,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { history } from '_helpers';
-import { authActions } from '_store';
+import { history } from 'helpers';
+import { authActions } from 'store';
 
 export { Login };
 
@@ -39,7 +39,7 @@ function Login() {
     return (
         <div className="col-md-6 offset-md-3 mt-5">
             <div className="card">
-                <h4 className="card-header">Login to Schryver</h4>
+                <h4 className="card-header">Login</h4>
                 <div className="card-body">
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="form-group">

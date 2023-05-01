@@ -3,12 +3,12 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 
-import { store } from './_store';
+import { store } from 'store';
 import { App } from './App';
 import './index.css';
 
 // setup fake backend
-import { fakeBackend } from './_helpers';
+import { fakeBackend } from 'helpers';
 fakeBackend();
 
 const container = document.getElementById('root');
